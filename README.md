@@ -4,11 +4,19 @@
 
 An IT service desk backend modelled on how internal support teams handle incidents: tickets get a priority from **impact × urgency**, carry **SLA deadlines**, move through a controlled **status workflow**, and keep a full **audit trail**. A reporting endpoint gives the numbers a support lead reviews each week.
 
-> Status: v0.1 — REST API, SQLite database and automated tests. A React agent dashboard is next (see Roadmap).
+> Status: **v0.2** — REST API, React agent dashboard, demo data, 39 automated tests, Docker. Portfolio project with fictional data.
+
+![Ticket queue](docs/screenshots/queue.png)
 
 ## Why this project
 
 It demonstrates the day-to-day logic of IT support and application support work — triage, prioritisation, SLA tracking, ticket lifecycle and reporting — implemented as a tested, documented application.
+
+## Screens
+
+| Ticket detail and audit trail | Service desk report |
+|---|---|
+| ![Ticket detail](docs/screenshots/ticket-detail.png) | ![Reports](docs/screenshots/reports.png) |
 
 ## Features
 
@@ -19,6 +27,7 @@ It demonstrates the day-to-day logic of IT support and application support work 
 - **Audit trail** — every creation, assignment, status change and comment is recorded with actor and time
 - **Reporting** — totals, open tickets, SLA breaches, SLA compliance %, average resolution time, and counts by status, priority and category, all in SQL
 - **Input validation** with Zod; parameterised SQL queries only
+- **Agent dashboard (React)** — queue sorted by priority with a live SLA countdown (on track / at risk / breached), ticket detail with audit trail and only the allowed actions, create form with a live priority preview, and a reports page
 
 ## SLA targets
 
@@ -31,17 +40,26 @@ It demonstrates the day-to-day logic of IT support and application support work 
 
 ## Tech stack
 
-Node.js 22 · Express 5 · SQLite (`node:sqlite`) · Zod · Vitest · Supertest · ESLint · GitHub Actions
+Node.js 22 · Express 5 · SQLite (`node:sqlite`) · Zod · React 19 · Vite · Vitest · React Testing Library · Supertest · ESLint · Docker · GitHub Actions
 
-## Run locally
+## Run it
+
+**Docker (one command):**
+
+```bash
+docker compose up --build
+# open http://localhost:4000 — demo tickets are loaded on first start
+```
+
+**Local development** (Node.js 22.5+):
 
 ```bash
 npm install
-npm run dev        # API on http://localhost:4000
-npm test           # 28 tests, in-memory database
+npm run seed       # optional: load demo tickets
+npm run dev        # API on :4000, dashboard on http://localhost:5173
+npm test           # 39 tests (server + client)
+npm run lint
 ```
-
-Requires Node.js 22.5 or newer (built-in SQLite).
 
 ## API
 
@@ -73,34 +91,44 @@ curl -X POST localhost:4000/api/tickets -H "Content-Type: application/json" -d '
 }'
 ```
 
-## Project structure
+## Architecture
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component diagram, data model, request flow, design decisions and testing strategy.
 
 ```text
+client/
+├── src/
+│   ├── pages/               # Queue, Ticket, New ticket, Reports
+│   ├── components/Badges.jsx
+│   ├── api.js               # REST client
+│   └── sla.js               # SLA countdown state
+└── tests/                   # React Testing Library + SLA unit tests
 server/
 ├── src/
-│   ├── domain/
-│   │   ├── sla.js           # Priority matrix, SLA targets, breach logic
-│   │   └── workflow.js      # Allowed status transitions
-│   ├── db.js                # Schema and connection
-│   ├── ticketRepository.js  # All ticket queries and business rules
+│   ├── domain/              # sla.js, workflow.js (pure business rules)
+│   ├── db.js                # Schema
+│   ├── ticketRepository.js  # Ticket queries + rules + audit events
 │   ├── reports.js           # Reporting SQL
-│   ├── app.js               # Routes, validation, error handling
-│   └── index.js             # Starts the server
-└── tests/                   # Domain and API tests
+│   ├── seed.js              # Fictional demo data
+│   ├── app.js               # Routes, validation, errors, static files
+│   └── index.js             # Entry point
+└── tests/
 ```
 
 ## Roadmap
 
-- React agent dashboard (queue, ticket detail, SLA countdown)
-- Authentication and roles (requester, agent, lead)
-- Business-hours SLA clock
-- Knowledge-base articles linked to resolved tickets
-- Power BI / CSV export of the report data
-- Docker and hosted demo
+- [x] v0.1 — API, SLA rules, workflow, audit trail, reporting
+- [x] v0.2 — React agent dashboard, demo data, Docker, architecture docs
+- [ ] v0.3 — Authentication and roles (requester / agent / lead); SLA clock pauses while On Hold; business-hours SLA
+- [ ] v0.4 — Knowledge-base articles linked to resolutions; CSV export and a Power BI report; PostgreSQL option
 
 ## Development log
 
 See [DEVLOG.md](DEVLOG.md).
+
+## How this was built
+
+Built with AI pair-programming (Claude Code). I defined the requirements and domain rules (ITIL priority matrix, SLA targets, ticket workflow), reviewed every change through pull requests, and can explain the design decisions documented in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The [DEVLOG](DEVLOG.md) records what changed and why at each step.
 
 ## Author
 

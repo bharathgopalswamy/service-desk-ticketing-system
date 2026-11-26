@@ -17,3 +17,17 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+      - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t service-desk .
+      - name: Smoke test container
+        run: |
+          docker run -d --name sd -p 4000:4000 -e SEED_DEMO=true service-desk
+          for i in $(seq 1 20); do curl -sf localhost:4000/api/health && break; sleep 1; done
+          curl -sf localhost:4000/api/reports/summary
+          curl -sf -o /dev/null localhost:4000/
