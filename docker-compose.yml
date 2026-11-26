@@ -1,0 +1,12 @@
+services:
+  service-desk:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      SEED_DEMO: "true"   # load demo tickets on first start
+    volumes:
+      - service-desk-data:/data
+
+volumes:
+  service-desk-data:
