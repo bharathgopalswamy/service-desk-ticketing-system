@@ -126,6 +126,10 @@ server/
 
 See [DEVLOG.md](DEVLOG.md).
 
+## How this was built
+
+Built with AI pair-programming (Claude Code). I defined the requirements and domain rules (ITIL priority matrix, SLA targets, ticket workflow), reviewed every change through pull requests, and can explain the design decisions documented in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The [DEVLOG](DEVLOG.md) records what changed and why at each step.
+
 ## Author
 
 Bharath Gopalsamy — [LinkedIn](https://www.linkedin.com/in/bharathgopalsamy) · [Portfolio](https://bharathgopalsamy.vercel.app)
