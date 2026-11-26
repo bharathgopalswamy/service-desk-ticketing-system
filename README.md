@@ -1,5 +1,8 @@
 # Service Desk Ticketing System
 
+**Live demo:** https://service-desk-ticketing-system.onrender.com  
+<sub>Free hosting: the first visit after a quiet period can take about a minute to wake up. Demo data resets on restart.</sub>
+
 [![CI](https://github.com/bharathgopalswamy/service-desk-ticketing-system/actions/workflows/ci.yml/badge.svg)](https://github.com/bharathgopalswamy/service-desk-ticketing-system/actions/workflows/ci.yml)
 
 An IT service desk backend modelled on how internal support teams handle incidents: tickets get a priority from **impact × urgency**, carry **SLA deadlines**, move through a controlled **status workflow**, and keep a full **audit trail**. A reporting endpoint gives the numbers a support lead reviews each week.
