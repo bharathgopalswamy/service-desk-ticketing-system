@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import fs from "fs";
 import { z } from "zod";
 import { IMPACTS, PRIORITIES, URGENCIES } from "./domain/sla.js";
 import { STATUSES } from "./domain/workflow.js";
@@ -52,7 +54,7 @@ function actorFrom(request) {
   return request.get("X-Agent")?.trim() || "unknown-agent";
 }
 
-export function createApp({ db, now } = {}) {
+export function createApp({ db, now, clientDist } = {}) {
   const tickets = createTicketRepository(db, { now });
   const reports = createReports(db, { now });
   const app = express();
@@ -99,6 +101,12 @@ export function createApp({ db, now } = {}) {
   app.get("/api/reports/summary", (req, res) => res.json(reports.summary()));
 
   app.use("/api", (req, res) => res.status(404).json({ message: "Not found." }));
+
+  // Serve the built React dashboard (production / Docker).
+  if (clientDist && fs.existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    app.get(/^\/(?!api).*/, (req, res) => res.sendFile(path.join(clientDist, "index.html")));
+  }
 
   // Central error handler: known errors keep their status; anything else
   // is logged and returned as a generic 500 without internal details.
